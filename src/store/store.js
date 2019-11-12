@@ -1,39 +1,86 @@
-import { observable } from 'mobx';
-import { createServices } from '../services';
 import { FILTER_TYPES } from '../const';
 
-export const appState = observable({
-  addInputValue: '',
-  todos: [],
-  filter: FILTER_TYPES.ALL,
-  editedTodoId: null,
+let id = 1;
 
-  get checkedAll() {
-    return appState.todos.every(({ checked }) => checked);
-  },
+export function createStore() {
+  return {
+    todos: [],
+    filter: FILTER_TYPES.ALL,
+    editedTodoId: null,
 
-  get hasTodos() {
-    return !!appState.todos.length;
-  },
+    get checkedAll() {
+      return this.todos.every(({ checked }) => checked);
+    },
 
-  get visibleTodos() {
-    switch (appState.filter) {
-      case FILTER_TYPES.CHECKED:
-        return appState.todos.filter(({ checked }) => checked);
-      case FILTER_TYPES.UNCHECKED:
-        return appState.todos.filter(({ checked }) => !checked);
-      default:
-        return appState.todos;
-    }
-  },
+    get hasTodos() {
+      return !!this.todos.length;
+    },
 
-  get amountUncheckedTodos() {
-    return appState.todos.filter(({ checked }) => !checked).length;
-  },
+    get visibleTodos() {
+      switch (this.filter) {
+        case FILTER_TYPES.CHECKED:
+          return this.todos.filter(({ checked }) => checked);
+        case FILTER_TYPES.UNCHECKED:
+          return this.todos.filter(({ checked }) => !checked);
+        default:
+          return this.todos;
+      }
+    },
 
-  get editedTodo() {
-    return appState.todos.find(({ id }) => appState.editedTodoId === id);
-  }
-});
+    get amountUncheckedTodos() {
+      return this.todos.filter(({ checked }) => !checked).length;
+    },
 
-export const services = createServices(appState);
+    get editedTodo() {
+      return this.todos.find(({ id }) => this.editedTodoId === id);
+    },
+
+    addTask(inputValue) {
+      const text = inputValue.trim();
+
+      if (text) {
+        this.todos.push({
+          id,
+          text,
+          checked: false,
+        });
+        id++;
+      }
+    },
+
+    toggleTodo(todoId) {
+      const findedTodo = this.todos.find(({ id }) => todoId === id);
+      findedTodo.checked = !findedTodo.checked;
+    },
+
+    toggleAllTodo(checked) {
+      this.todos.forEach(todo => {
+        todo.checked = checked;
+      });
+    },
+
+    setFilter(filter) {
+      this.filter = filter;
+    },
+
+    setEditedTodoId(editedTodoId) {
+      this.editedTodoId = editedTodoId;
+    },
+
+    deleteTodo(deletedTodoId) {
+      this.todos = this.todos.filter(({ id }) => deletedTodoId !== id);
+    },
+
+    editTodo(editedText) {
+      const formatedText = editedText.trim();
+
+      if (formatedText) {
+        this.editedTodo.text = formatedText;
+      } else {
+        this.deleteTodo(this.editedTodoId);
+      }
+
+      this.editedTodoId = null;
+    },
+  };
+}

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
+import { useStore } from './store';
 import { Text } from './components';
 import { AddField, TodoWrapper, FilterPanel } from './containers';
-import { appState as state } from './store';
 import { ORANGE_COLOR } from './const';
 
 const MainWrapper = styled.main`
@@ -14,15 +14,34 @@ const MainWrapper = styled.main`
   margin: 0 10px;
 `;
 
-export const App = observer(() => (
-  <MainWrapper>
-    <Text color={ORANGE_COLOR} fontSize={40} justify="center">
-      todo
-    </Text>
-    <AddField />
-    {state.visibleTodos.map(({ id, ...props }) => (
-      <TodoWrapper key={id} id={id} isEditedTodo={id === state.editedTodoId} {...props} />
-    ))}
-    {state.hasTodos && <FilterPanel />}
-  </MainWrapper>
-));
+const useStoreData = () => {
+  const { visibleTodos, hasTodos, editedTodoId } = useStore();
+
+  return {
+    visibleTodos,
+    hasTodos,
+    editedTodoId,
+  };
+};
+
+export const App = observer(() => {
+  const { visibleTodos, hasTodos, editedTodoId } = useStoreData();
+
+  return (
+    <MainWrapper>
+      <Text color={ORANGE_COLOR} fontSize={40} justify="center">
+        todo
+      </Text>
+      <AddField />
+      {visibleTodos.map(({ id, ...props }) => (
+        <TodoWrapper
+          key={id}
+          id={id}
+          isEditedTodo={id === editedTodoId}
+          {...props}
+        />
+      ))}
+      {hasTodos && <FilterPanel />}
+    </MainWrapper>
+  );
+});

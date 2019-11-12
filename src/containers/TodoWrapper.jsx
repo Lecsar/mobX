@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
-import { services } from '../store';
+import { services, useStore } from '../store';
 import { GREY_COLOR } from '../const';
 import { Todo } from '.';
 import { Input } from '../components';
@@ -16,25 +16,32 @@ const TodoStyledWrapper = styled.div`
   border-bottom: 1px solid ${GREY_COLOR};
 `;
 
+const useStoreData = () => {
+  const { toggleTodo, setEditedTodoId, deleteTodo } = useStore();
+  return { toggleTodo, setEditedTodoId, deleteTodo };
+};
+
 export const TodoWrapper = observer(({ id, checked, text, isEditedTodo }) => {
+  const { toggleTodo, setEditedTodoId, deleteTodo } = useStoreData();
+
   const onClickCheckbox = useCallback(() => {
-    services.toggleTodo(id);
-  }, [id, services.toggleTodo]);
+    toggleTodo(id);
+  }, [id, toggleTodo]);
 
   const throwOffTodoId = useCallback(() => {
-    services.setEditedTodoId(null);
-  }, [services.setEditedTodoId]);
+    setEditedTodoId(null);
+  }, [setEditedTodoId]);
 
-  const setEditedTodoId = useCallback(() => {
-    services.setEditedTodoId(id);
-  }, [id, services.setEditedTodoId]);
+  const onSetEditedTodoId = useCallback(() => {
+    setEditedTodoId(id);
+  }, [id, setEditedTodoId]);
 
-  const deleteTodo = useCallback(() => {
-    services.deleteTodo(id);
-  }, [id, services.deleteTodo]);
+  const onDeleteTodo = useCallback(() => {
+    deleteTodo(id);
+  }, [id, deleteTodo]);
 
   return (
-    <TodoStyledWrapper onDoubleClick={setEditedTodoId} onBlur={throwOffTodoId}>
+    <TodoStyledWrapper onDoubleClick={onSetEditedTodoId} onBlur={throwOffTodoId}>
       {isEditedTodo ? (
         <Input
           startValue={text}
@@ -47,7 +54,7 @@ export const TodoWrapper = observer(({ id, checked, text, isEditedTodo }) => {
           checked={checked}
           text={text}
           onClickCheckbox={onClickCheckbox}
-          onClickDelete={deleteTodo}
+          onClickDelete={onDeleteTodo}
         />
       )}
     </TodoStyledWrapper>

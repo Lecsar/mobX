@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react-lite';
-import { appState, services } from '../store';
+import { useStore } from '../store';
 import { Text } from '../components';
 import { Button } from '../components/Button';
 import { GREY_COLOR, FILTER_TYPES } from '../const';
@@ -22,31 +22,44 @@ const ButtonsWrapper = styled.div`
   flex: 1;
 `;
 
-export const FilterPanel = observer(() => (
-  <FilterWrapper>
-    <Text>{appState.amountUncheckedTodos} items left</Text>
-    <ButtonsWrapper>
-      <Button
-        active={appState.filter === FILTER_TYPES.ALL}
-        value={FILTER_TYPES.ALL}
-        onClick={services.setFilter}
-      >
-        All
-      </Button>
-      <Button
-        active={appState.filter === FILTER_TYPES.UNCHECKED}
-        value={FILTER_TYPES.UNCHECKED}
-        onClick={services.setFilter}
-      >
-        Active
-      </Button>
-      <Button
-        active={appState.filter === FILTER_TYPES.CHECKED}
-        value={FILTER_TYPES.CHECKED}
-        onClick={services.setFilter}
-      >
-        Completed
-      </Button>
-    </ButtonsWrapper>
-  </FilterWrapper>
-));
+const useStoreData = () => {
+  const { amountUncheckedTodos, filter, setFilter } = useStore();
+  return {
+    amountUncheckedTodos,
+    filter,
+    setFilter,
+  };
+};
+
+export const FilterPanel = observer(() => {
+  const { amountUncheckedTodos, filter, setFilter } = useStoreData();
+
+  return (
+    <FilterWrapper>
+      <Text>{amountUncheckedTodos} items left</Text>
+      <ButtonsWrapper>
+        <Button
+          active={filter === FILTER_TYPES.ALL}
+          value={FILTER_TYPES.ALL}
+          onClick={setFilter}
+        >
+          All
+        </Button>
+        <Button
+          active={filter === FILTER_TYPES.UNCHECKED}
+          value={FILTER_TYPES.UNCHECKED}
+          onClick={setFilter}
+        >
+          Active
+        </Button>
+        <Button
+          active={filter === FILTER_TYPES.CHECKED}
+          value={FILTER_TYPES.CHECKED}
+          onClick={setFilter}
+        >
+          Completed
+        </Button>
+      </ButtonsWrapper>
+    </FilterWrapper>
+  );
+});

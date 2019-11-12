@@ -1,18 +1,10 @@
 export { appState } from '../store';
 
-let id = 5;
+let id = 1;
 
 export const createServices = appState => {
-  const setAddInputValue = value => {
-    appState.addInputValue = value;
-  };
-
-  const clearInput = () => {
-    appState.addInputValue = '';
-  };
-
-  const addTask = () => {
-    const text = appState.addInputValue.trim();
+  const addTask = (inputValue) => {
+    const text = inputValue.trim();
 
     if (text) {
       appState.todos.push({
@@ -20,7 +12,6 @@ export const createServices = appState => {
         text,
         checked: false
       });
-      appState.addInputValue = '';
       id++;
     }
   };
@@ -61,8 +52,6 @@ export const createServices = appState => {
   };
 
   return {
-    setAddInputValue,
-    clearInput,
     addTask,
     toggleTodo,
     toggleAllTodo,
